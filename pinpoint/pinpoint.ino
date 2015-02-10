@@ -49,27 +49,12 @@ void swap_pixels(CHSV &pixel, int location)
   
   paint_canvas_black();
   
-  newPix[0] = location;
-  newPix[1] = location + 1;
-  newPix[2] = location + 8;
-  newPix[3] = location + 9;
-  oldPix[0] = oldLocation;
-  oldPix[1] = oldLocation + 1;
-  oldPix[2] = oldLocation + 8;
-  oldPix[3] = oldLocation + 9;
-
-  for (int i = 0; i < NUM_LEDS; i++) {
-    pixels[i] = blackPixel;
-  }
-
   while (pixel.v < 255) {
     pixel.v++;
     oldPixel.v--;
     
-    for (int i = 0; i < 4; i++) {
-      pixels[oldPix[i]] = oldPixel;
-      pixels[newPix[i]] = pixel;
-    }
+    pixels[oldLocation] = oldPixel;
+    pixels[location] = pixel;
 
     hsv2rgb_rainbow(pixels, strip, NUM_LEDS);
     FastLED.show();
@@ -85,9 +70,6 @@ void loop() {
     location = random(0, 31);
   }
   
-  if ((location % 8) == 7)
-    location++;
-    
   pixel.v = 0;
   pixel.h = ColorWheel[random(0, 8)];
   pixel.s = 255;
