@@ -27,34 +27,22 @@ void setup() {
   oldLocation = 0;
 }
 
-void paint_canvas_black()
-{
-  for (int i = 0; i < NUM_LEDS; i++) {
-    strip[i] = CRGB::Black;
-  }
-  FastLED.show();
-}
-
-void swap_pixels(CHSV &pixel, int location)
+void swap_pixels(CHSV &pixel, int newLocation)
 {
   CHSV pixels[NUM_LEDS];
   CHSV blackPixel;
-  int newPix[4];
-  int oldPix[4];
   int pos;
   
-  blackPixel.v = 0;
-  blackPixel.s = 0;
-  blackPixel.h = 0;
-  
-  paint_canvas_black();
+  for (int i = 0; i < NUM_LEDS; i++) {
+    memset(&pixels[i], 0, sizeof(CHSV));
+  }
   
   while (pixel.v < 255) {
     pixel.v++;
     oldPixel.v--;
     
     pixels[oldLocation] = oldPixel;
-    pixels[location] = pixel;
+    pixels[newLocation] = pixel;
 
     hsv2rgb_rainbow(pixels, strip, NUM_LEDS);
     FastLED.show();
