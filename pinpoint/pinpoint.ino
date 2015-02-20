@@ -55,7 +55,7 @@ void loop() {
   CHSV pixel;
   
   if (location == oldLocation) {
-    location = random(0, 31);
+    location = random(0, 39);
   }
   
   pixel.v = 0;
