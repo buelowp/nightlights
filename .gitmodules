@@ -1,0 +1,3 @@
+[submodule "SparkCore-NeoPixel"]
+	path = SparkCore-NeoPixel
+	url = https://github.com/technobly/SparkCore-NeoPixel.git
