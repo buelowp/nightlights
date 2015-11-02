@@ -19,6 +19,8 @@ SYSTEM_MODE(AUTOMATIC);
 #define XMAS_PROGRAM        4
 #define HLWN_PROGRAM        5
 
+#define NL_VERSION			"1.0"
+
 using namespace NSFastLED;
 
 static CRGB HalloweenColorWheel[] = {
@@ -244,12 +246,12 @@ void shutdown()
 void printHeartbeat()
 {
     if (lastMinute == 59 && Time.minute() >= 0) {
-        Particle.publish("Nightlight System version: " + System.version());
+        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
         lastMinute = Time.minute();
     }
 
     if (Time.minute() >= lastMinute + 1) {
-        Particle.publish("Nightlight System version: " + System.version());
+        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
         lastMinute = Time.minute();
     }
 }
@@ -268,7 +270,7 @@ void setup() {
 	FastLED.addLeds<NEOPIXEL, D6>(strip, NUM_LEDS);
 
     lastMinute = Time.minute();
-    Particle.publish("System version: " + System.version());
+    Particle.publish("Startup", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
 }
 
 void loop() {
