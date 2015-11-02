@@ -1,3 +1,6 @@
 [submodule "SparkCore-NeoPixel"]
 	path = SparkCore-NeoPixel
 	url = https://github.com/technobly/SparkCore-NeoPixel.git
+[submodule "FastLED-Sparkcore"]
+	path = FastLED-Sparkcore
+	url = https://github.com/eklex/FastLED-Sparkcore
