@@ -10,7 +10,8 @@ SYSTEM_MODE(AUTOMATIC);
 #define NL_COLORS		6
 #define HALLO_COLORS	5
 #define XMAS_COLORS		4
-
+#define VDAY_COLORS		5
+#define IDAY_COLORS		3
 
 #define NO_PROGRAM          0
 #define MIGRATE_PROGRAM     1
@@ -18,8 +19,10 @@ SYSTEM_MODE(AUTOMATIC);
 #define SPIN_PROGRAM        3
 #define XMAS_PROGRAM        4
 #define HLWN_PROGRAM        5
+#define VDAY_PROGRAM		6
+#define IDAY_PROGRAM		7
 
-#define NL_VERSION			"1.0"
+#define NL_VERSION			"1.1"
 
 using namespace NSFastLED;
 
@@ -47,27 +50,56 @@ static CRGB ChristmasColorWheel[] = {
 		CRGB::Green
 };
 
+static CRGB ValentinesColorWheel[] = {
+		CRGB::HotPink,
+		CRGB::Pink,
+		CRGB::FloralWhite,
+		CRGB::Lavender,
+		CRGB::MistyRose,
+};
+
+static CRGB IDayColorWheel[] = {
+		CRGB::LightSalmon,
+		CRGB::LightBlue,
+		CRGB::AntiqueWhite,
+};
+
 CRGB strip[NUM_LEDS];
 
 int whichProgram;
 CRGB pixelColor;
 bool randomColor;
+bool progOverride;
 int lastColor;
 bool bOff;
 int lastMinute;
 
 int setProgram(String p)
 {
-    if (p.equalsIgnoreCase("spin"))
+	if (p.equalsIgnoreCase("random")) {
+		whichProgram = MIGRATE_PROGRAM;
+		progOverride = false;
+	}
+    if (p.equalsIgnoreCase("spin")) {
         whichProgram = SPIN_PROGRAM;
-    else if (p.equalsIgnoreCase("random"))
+        progOverride = true;
+    }
+    else if (p.equalsIgnoreCase("random")) {
         whichProgram = MIGRATE_PROGRAM;
-    else if (p.equalsIgnoreCase("sparkle"))
+        progOverride = true;
+    }
+    else if (p.equalsIgnoreCase("sparkle")) {
         whichProgram = SPARKLE_PROGRAM;
-    else if (p.equalsIgnoreCase("halloween"))
+        progOverride = true;
+    }
+    else if (p.equalsIgnoreCase("halloween")) {
         whichProgram = HLWN_PROGRAM;
-    else if (p.equalsIgnoreCase("christmas"))
+        progOverride = true;
+    }
+    else if (p.equalsIgnoreCase("christmas")) {
         whichProgram = XMAS_PROGRAM;
+        progOverride = true;
+    }
     else if (p.equalsIgnoreCase("off")) {
         whichProgram = NO_PROGRAM;
     }
@@ -171,44 +203,74 @@ void migrate()
 
 void halloween()
 {
-	/*
-    int pixel = random(0, NUM_LEDS);
+    int index = random(0, NUM_LEDS);
     CRGB c;
 
-    c = HalloweenColorWheel[nextRandom(0, HALLO_COLORS)];
-    for (int i = 0; i < pixelBrightness; i++) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
+    if (randomColor) {
+        c = HalloweenColorWheel[nextRandom(1, HALLO_COLORS)];
     }
-    delay(random(5000, 8500));
-    for (int i = pixelBrightness; i >= 0; i--) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
+    else {
+        c = pixelColor;
     }
-    */
+
+    pixelShutdown();
+    strip[index] = c;
+    FastLED.show();
+    delay(random(4500, 9000));
 }
 
 void christmas()
 {
-	/*
-    int pixel = random(0, NUM_LEDS);
+    int index = random(0, NUM_LEDS);
     CRGB c;
 
-    c = ChristmasColorWheel[nextRandom(0, XMAS_COLORS)];
-    for (int i = 0; i < pixelBrightness; i++) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
+    if (randomColor) {
+        c = ChristmasColorWheel[nextRandom(1, XMAS_COLORS)];
     }
-    delay(random(5000, 8500));
-    for (int i = pixelBrightness; i >= 0; i--) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
+    else {
+        c = pixelColor;
     }
-    */
+
+    pixelShutdown();
+    strip[index] = c;
+    FastLED.show();
+    delay(random(4500, 9000));
+}
+
+void vday()
+{
+    int index = random(0, NUM_LEDS);
+    CRGB c;
+
+    if (randomColor) {
+        c = ValentinesColorWheel[nextRandom(1, VDAY_COLORS)];
+    }
+    else {
+        c = pixelColor;
+    }
+
+    pixelShutdown();
+    strip[index] = c;
+    FastLED.show();
+    delay(random(4500, 9000));
+}
+
+void iday()
+{
+    int index = random(0, NUM_LEDS);
+    CRGB c;
+
+    if (randomColor) {
+        c = IDayColorWheel[nextRandom(1, IDAY_COLORS)];
+    }
+    else {
+        c = pixelColor;
+    }
+
+    pixelShutdown();
+    strip[index] = c;
+    FastLED.show();
+    delay(random(4500, 9000));
 }
 
 void shutdown()
@@ -232,6 +294,30 @@ void printHeartbeat()
     }
 }
 
+int setProgram()
+{
+	if (progOverride)
+		return whichProgram;
+
+	if (Time.month() == 12) {
+		if (Time.day() > 22 && Time.day() < 27)
+			return XMAS_PROGRAM;
+	}
+	if (Time.month() == 2) {
+		if (Time.day() == 14)
+			return VDAY_PROGRAM;
+	}
+	if (Time.month() == 7) {
+		if (Time.day() == 4)
+			return IDAY_PROGRAM;
+	}
+	if (Time.month() == 10) {
+		if (Time.day() > 27)
+			return HLWN_PROGRAM;
+	}
+	return MIGRATE_PROGRAM;
+}
+
 void setup() {
     whichProgram = MIGRATE_PROGRAM;
     pixelColor = CRGB::White;
@@ -250,6 +336,7 @@ void setup() {
 }
 
 void loop() {
+	whichProgram = setProgram();
     switch (whichProgram) {
         case MIGRATE_PROGRAM:
             migrate();
@@ -263,6 +350,12 @@ void loop() {
         case XMAS_PROGRAM:
             christmas();
             break;
+        case VDAY_PROGRAM:
+        	vday();
+        	break;
+        case IDAY_PROGRAM:
+        	vday();
+        	break;
         case NO_PROGRAM:
             shutdown();
             break;
