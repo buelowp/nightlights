@@ -50,7 +50,6 @@ static CRGB ChristmasColorWheel[] = {
 CRGB strip[NUM_LEDS];
 
 int whichProgram;
-int pixelBrightness;
 CRGB pixelColor;
 bool randomColor;
 int lastColor;
@@ -83,10 +82,11 @@ int setBrightness(String b)
 {
     int newBright = b.toInt();
 
-    if (newBright > 0) {
-        pixelBrightness = newBright;
+    if (newBright > 0 && newBright < 255) {
+    	FastLED.setBrightness(newBright);
+        return newBright;
     }
-    return pixelBrightness;
+    return -1;
 }
 
 int setColor(String c)
@@ -110,7 +110,6 @@ void pixelShutdown()
 	for (int j = 0; j < NUM_LEDS; j++) {
 		strip[j] = CRGB::Black;
 	}
-	FastLED.show();
 }
 
 int nextRandom(int low, int high)
@@ -123,10 +122,9 @@ int nextRandom(int low, int high)
     return next;
 }
 
-void setPixel(int i, CRGB c, uint8_t b)
+void setPixel(int i, CRGB c)
 {
 	pixelShutdown();
-    FastLED.setBrightness(b);
     strip[i] = c;
 }
 
@@ -145,36 +143,9 @@ void spin()
     if (curPixel >= NUM_LEDS)
         curPixel = 0;
 
-    setPixel(curPixel++, c, pixelBrightness);
+    setPixel(curPixel++, c);
     FastLED.show();
     delay(1000);
-}
-
-/*
- * Light one pixel up white
- */
-void sparkle()
-{
-    int pixel = random(0, 24);
-    CRGB c;
-
-    if (randomColor) {
-        c = NightlightColorWheel[nextRandom(1, NL_COLORS)];
-    }
-    else {
-        c = pixelColor;
-    }
-
-    for (int i = 0; i < pixelBrightness; i++) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
-    }
-    for (int i = pixelBrightness; i >= 0; i--) {
-        setPixel(pixel, c, i);
-        FastLED.show();
-        delay(25);
-    }
 }
 
 /**
@@ -186,19 +157,21 @@ void migrate()
     CRGB c;
 
     if (randomColor) {
-        c = NightlightColorWheel[nextRandom(1, NUM_LEDS)];
+        c = NightlightColorWheel[nextRandom(1, NL_COLORS)];
     }
     else {
         c = pixelColor;
     }
 
-    setPixel(index, c, pixelBrightness);
+    pixelShutdown();
+    strip[index] = c;
     FastLED.show();
     delay(random(4500, 9000));
 }
 
 void halloween()
 {
+	/*
     int pixel = random(0, NUM_LEDS);
     CRGB c;
 
@@ -214,10 +187,12 @@ void halloween()
         FastLED.show();
         delay(25);
     }
+    */
 }
 
 void christmas()
 {
+	/*
     int pixel = random(0, NUM_LEDS);
     CRGB c;
 
@@ -233,6 +208,7 @@ void christmas()
         FastLED.show();
         delay(25);
     }
+    */
 }
 
 void shutdown()
@@ -258,7 +234,6 @@ void printHeartbeat()
 
 void setup() {
     whichProgram = MIGRATE_PROGRAM;
-    pixelBrightness = NORM_BRIGHT;
     pixelColor = CRGB::White;
     randomColor = true;
     bOff = false;
@@ -268,6 +243,7 @@ void setup() {
     Particle.function("color", setColor);
 
 	FastLED.addLeds<NEOPIXEL, D6>(strip, NUM_LEDS);
+	FastLED.setBrightness(NORM_BRIGHT);
 
     lastMinute = Time.minute();
     Particle.publish("Startup", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
@@ -277,9 +253,6 @@ void loop() {
     switch (whichProgram) {
         case MIGRATE_PROGRAM:
             migrate();
-            break;
-        case SPARKLE_PROGRAM:
-            sparkle();
             break;
         case SPIN_PROGRAM:
             spin();
