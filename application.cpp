@@ -21,6 +21,7 @@ SYSTEM_MODE(AUTOMATIC);
 #define HLWN_PROGRAM        5
 #define VDAY_PROGRAM		6
 #define IDAY_PROGRAM		7
+#define METEOR_PROGRAM	8
 
 #define NL_VERSION			"1.2"
 
@@ -83,6 +84,15 @@ byte idex = 0;
 byte colorTIP = 0;
 byte meteorLENGTH;
 byte loopCount = 1;    //low number loop counter
+
+//find the adjacent counter clockwise postion of the led
+//funkboxing code snippet
+byte adjacent_ccw(byte i) {
+  byte r;
+  if (i > 0) { r = i - 1; }
+  else { r = NUM_LEDS - 1; }
+  return r;
+}
 
 void meteorShower(){
   //hue master
@@ -332,15 +342,6 @@ void meteorShower(){
   delay(30);
 }
 
-//find the adjacent counter clockwise postion of the led
-//funkboxing code snippet
-byte adjacent_ccw(byte i) {
-  byte r;
-  if (i > 0) { r = i - 1; }
-  else { r = NUM_LEDS - 1; }
-  return r;
-}
-
 int setProgram(String p)
 {
 	if (p.equalsIgnoreCase("random")) {
@@ -366,6 +367,10 @@ int setProgram(String p)
     else if (p.equalsIgnoreCase("christmas")) {
         whichProgram = XMAS_PROGRAM;
         progOverride = true;
+    }
+    else if (p.equalsIgnoreCase("meteor")) {
+    	whichProgram = METEOR_PROGRAM;
+    	progOverride = true;
     }
     else if (p.equalsIgnoreCase("off")) {
         whichProgram = NO_PROGRAM;
@@ -622,6 +627,9 @@ void loop() {
         	break;
         case IDAY_PROGRAM:
         	vday();
+        	break;
+        case METEOR_PROGRAM:
+        	meteorShower();
         	break;
         case NO_PROGRAM:
             shutdown();
