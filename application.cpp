@@ -339,7 +339,7 @@ void meteorShower(){
   //show the blinky
   FastLED.show();
   //control the animation speed/frame rate
-  delay(30);
+  delay(10);
 }
 
 int setProgram(String p)
