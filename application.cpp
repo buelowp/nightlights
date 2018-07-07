@@ -4,9 +4,9 @@
 
 SYSTEM_MODE(AUTOMATIC);
 
-#define NUM_LEDS	    24
+#define NUM_LEDS	    7
 #define NORM_BRIGHT     80
-#define PIXEL_PIN       D6
+#define PIXEL_PIN       D0
 #define NL_COLORS		6
 #define HALLO_COLORS	5
 #define XMAS_COLORS		4
@@ -23,7 +23,7 @@ SYSTEM_MODE(AUTOMATIC);
 #define IDAY_PROGRAM		7
 #define METEOR_PROGRAM	8
 
-#define NL_VERSION			"1.2"
+#define NL_VERSION			"1.5"
 
 using namespace NSFastLED;
 
@@ -467,7 +467,6 @@ void migrate()
         c = pixelColor;
     }
 
-    pixelShutdown();
     strip[index] = c;
     FastLED.show();
     delay(random(4500, 9000));
@@ -556,17 +555,17 @@ void shutdown()
 void printHeartbeat()
 {
     if (lastMinute == 59 && Time.minute() >= 0) {
-        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
+        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION + ", Program: " + whichProgram));
         lastMinute = Time.minute();
     }
 
     if (Time.minute() >= lastMinute + 1) {
-        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION));
+        Particle.publish("Heartbeat", String("System Version: " + System.version() + ", Program Version: " + NL_VERSION + ", Program: " + whichProgram));
         lastMinute = Time.minute();
     }
 }
 
-int setProgram()
+int setCurrentProgram(String)
 {
 	if (progOverride)
 		return whichProgram;
@@ -596,7 +595,9 @@ void setup() {
     randomColor = true;
     bOff = false;
 
-    Particle.function("program", setProgram);
+	waitUntil(WiFi.ready);
+
+    Particle.function("program", setCurrentProgram);
     Particle.function("brightness", setBrightness);
     Particle.function("color", setColor);
 
@@ -608,7 +609,7 @@ void setup() {
 }
 
 void loop() {
-	whichProgram = setProgram();
+	whichProgram = setCurrentProgram("null");
     switch (whichProgram) {
         case MIGRATE_PROGRAM:
             migrate();
