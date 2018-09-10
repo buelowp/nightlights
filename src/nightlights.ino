@@ -1,8 +1,6 @@
-#include "application.h"
+#include "FastLED.h"
 
-#include "FastLED-sparkcore/firmware/FastLED.h"
-
-SYSTEM_MODE(AUTOMATIC);
+using namespace NSFastLED;
 
 #define NUM_LEDS	    7
 #define NORM_BRIGHT     80
@@ -21,11 +19,10 @@ SYSTEM_MODE(AUTOMATIC);
 #define HLWN_PROGRAM        5
 #define VDAY_PROGRAM		6
 #define IDAY_PROGRAM		7
-#define METEOR_PROGRAM	8
+#define METEOR_PROGRAM	    8
 
 #define NL_VERSION			"1.5"
-
-using namespace NSFastLED;
+#define APP_ID              2
 
 static CRGB HalloweenColorWheel[] = {
 	CRGB::Red,
@@ -74,6 +71,7 @@ bool progOverride;
 int lastColor;
 bool bOff;
 int lastMinute;
+int i_appId;
 
 byte ledsX[NUM_LEDS][3];
 boolean RAINBOWs = false;
@@ -594,12 +592,14 @@ void setup() {
     pixelColor = CRGB::White;
     randomColor = true;
     bOff = false;
+    i_appId = APP_ID;
 
 	waitUntil(WiFi.ready);
 
     Particle.function("program", setCurrentProgram);
     Particle.function("brightness", setBrightness);
     Particle.function("color", setColor);
+    Particle.variable("version", i_appId);
 
 	FastLED.addLeds<NEOPIXEL, D6>(strip, NUM_LEDS);
 	FastLED.setBrightness(NORM_BRIGHT);
